@@ -14,29 +14,80 @@ HTML_TEMPLATE = """
     <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.5/mode/python/python.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.5/codemirror.min.css">
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-body { font-family: Arial, sans-serif; background: #111; color: #2196F3; padding: 15px; text-align: center; }
-.container { max-width: 100%; padding: 10px; }
-h2 { font-size: 22px; margin-bottom: 10px; color: #2196F3; }
-textarea, pre { width: 100%; max-width: 100%; }
-button { width: 100%; padding: 12px; margin: 5px 0; font-size: 16px; background: #2196F3; color: white; border: none; border-radius: 5px; cursor: pointer; }
-button:hover { background: #1976D2; }
-pre { background: #222; color: #2196F3; padding: 10px; border-radius: 5px; text-align: left; overflow-x: auto; max-height: 200px; }
-#infoBox { display: none; background: #333; color: white; padding: 10px; border-radius: 5px; margin-top: 10px; }
-
+        * { 
+            margin: 0; 
+            padding: 0; 
+            box-sizing: border-box; 
+        }
+        body { 
+            font-family: Arial, sans-serif; 
+            background-color: #111;
+            color: #2196F3;     
+            padding: 15px; 
+            text-align: center; 
+        }
+        .container { 
+            max-width: 100%; 
+            padding: 10px; 
+        }
+        h2 { 
+            font-size: 22px; 
+            margin-bottom: 10px; 
+            color: #2196F3;
+        }
+        textarea, pre { 
+            width: 100%; 
+            max-width: 100%; 
+        }
+        button { 
+            width: 100%; 
+            padding: 12px; 
+            margin: 5px 0; 
+            font-size: 16px; 
+            background: #2196F3;
+            color: white; 
+            border: none; 
+            border-radius: 5px; 
+            cursor: pointer; 
+            transition: background 0.3s ease-in-out;
+        }
+        button:hover { 
+            background: #1976D2;
+        }
+        pre { 
+            background: #222; 
+            color: #2196F3;  
+            padding: 10px; 
+            border-radius: 5px; 
+            text-align: left; 
+            overflow-x: auto; 
+            max-height: 200px;
+        }
+        #infoBox { 
+            display: none; 
+            background: #333; /* Dark grey background */
+            color: white; 
+            padding: 10px; 
+            border-radius: 5px; 
+            margin-top: 10px; 
+        }
     </style>
 </head>
 <body>
     <div class="container">
         <h2>Python Web Compiler</h2>
-        <textarea id="code" placeholder="Write your Python code here..."></textarea>
+        <textarea id="code" placeholder="Write your Python code here"></textarea>
         <button onclick="runCode()">▶ Run the Code</button>
         <button onclick="installPackage()">📦 Install Package</button>
         <button onclick="toggleInfo()">ℹ️ Info</button>
         <div id="infoBox">
             <p>💡 Type the code in the textfield and press 'Run Code' to run the code.</p>
             <p>⚠️ "Reality is often disappointing" - Some Advanced codes including various modules will terminate early.</p>
-            <p>📌 To install a package, just type the module name in the Alert box.</p>
+            <p>📌🛠 To install a package, just type the module name in the Alert box. If it does not work, open this link: 
+                <a 
+                    href="https://apis-qgxq.onrender.com/" target="_blank">https://apis-qgxq.onrender.com/
+                </a>
+            </p>
         </div>
         <h3>Output:</h3>
         <pre id="output"></pre>
