@@ -9,7 +9,7 @@ HTML_TEMPLATE = """
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Python Web Compiler</title>
+    <title>Python Code Compiler</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.5/codemirror.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.5/mode/python/python.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.5/codemirror.min.css">
@@ -75,19 +75,15 @@ HTML_TEMPLATE = """
 </head>
 <body>
     <div class="container">
-        <h2>Python Web Compiler</h2>
+        <h2>Python Code Compiler</h2>
         <textarea id="code" placeholder="Write your Python code here"></textarea>
         <button onclick="runCode()">▶ Run the Code</button>
-        <button onclick="installPackage()">📦 Install Package</button>
+        <button onclick="installPackage()">📦 Install Packages(Only works in Chrome</button>
         <button onclick="toggleInfo()">ℹ️ Info</button>
         <div id="infoBox">
             <p>💡 Type the code in the textfield and press 'Run Code' to run the code.</p>
             <p>⚠️ "Reality is often disappointing" - Some Advanced codes including various modules will terminate early.</p>
-            <p>📌🛠 To install a package, just type the module name in the Alert box. If it does not work, open this link: 
-                <a 
-                    href="https://apis-qgxq.onrender.com/" target="_blank">https://apis-qgxq.onrender.com/
-                </a>
-            </p>
+            <p>📌🛠 Most of python modules are already running but If theres a need to add more packages, just dm us through Github added in the Top right corner icons on top App Bar.</p>
         </div>
         <h3>Output:</h3>
         <pre id="output"></pre>
