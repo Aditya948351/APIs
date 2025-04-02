@@ -1,104 +1,100 @@
-import tkinter as tk
-from tkinter import filedialog, messagebox
-import fitz  # PyMuPDF
-from PyPDF2 import PdfMerger, PdfReader, PdfWriter
-from reportlab.pdfgen import canvas
+from flask import Flask, render_template_string, request, jsonify
+import subprocess
+import sys
+import os
 
-# Function to merge PDFs
-def merge_pdfs():
-    files = filedialog.askopenfilenames(title="Select PDFs to Merge", filetypes=[("PDF Files", "*.pdf")])
-    if not files:
-        return
-    
-    merger = PdfMerger()
-    for pdf in files:
-        merger.append(pdf)
-    
-    output_filename = filedialog.asksaveasfilename(defaultextension=".pdf", filetypes=[("PDF Files", "*.pdf")])
-    if output_filename:
-        merger.write(output_filename)
-        merger.close()
-        messagebox.showinfo("Success", f"PDFs Merged and Saved as {output_filename}")
+app = Flask(__name__)
 
-# Function to split a PDF
-def split_pdf():
-    file = filedialog.askopenfilename(title="Select PDF to Split", filetypes=[("PDF Files", "*.pdf")])
-    if not file:
-        return
-    
-    reader = PdfReader(file)
-    total_pages = len(reader.pages)
-    
-    start_page = int(entry_start.get()) - 1
-    end_page = int(entry_end.get())
-    
-    if start_page < 0 or end_page > total_pages or start_page >= end_page:
-        messagebox.showerror("Error", "Invalid page range")
-        return
-    
-    writer = PdfWriter()
-    for i in range(start_page, end_page):
-        writer.add_page(reader.pages[i])
-    
-    output_filename = filedialog.asksaveasfilename(defaultextension=".pdf", filetypes=[("PDF Files", "*.pdf")])
-    if output_filename:
-        with open(output_filename, "wb") as output_pdf:
-            writer.write(output_pdf)
-        messagebox.showinfo("Success", f"Pages {start_page+1} to {end_page} saved as {output_filename}")
+# HTML, CSS, and JS embedded in a single Flask file (not needed for mobile but kept here for reference)
+HTML_TEMPLATE = """
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Python Web Compiler</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.5/codemirror.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.5/mode/python/python.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.5/codemirror.min.css">
+    <style>
+        body { font-family: monospace; background-color: black; color: lime; margin: 0; padding: 10px; text-align: left; }
+        .container { width: 100%; padding: 10px; }
+        pre { background: #222; color: lime; padding: 10px; border-radius: 5px; text-align: left; overflow-x: auto; }
+        #infoBox { display: none; background: #333; color: white; padding: 10px; border-radius: 5px; margin-top: 10px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Python Web Compiler</h2>
+        <textarea id="code" placeholder="Write your Python code here..."></textarea>
+        <button onclick="runCode()">Run Code</button>
+        <button onclick="installPackage()">Install Package</button>
+        <button onclick="toggleInfo()">ℹ️ Info</button>
+        <div id="infoBox">
+            <p>1.Type Python code in the editor and press 'Run Code' to execute. To install a package, type 'pip install <package>' in the terminal and press Enter.<p/>
+            <p>2.Remember it takes time take cool while running the python code<p/>
+            <p>3.some code requiring high working may terminate earlier you can run basic Python codes with ease<p/>
+        </div>
+        <h3>Output:</h3>
+        <pre id="output"></pre>
+    </div>
+    <script>
+        let editor = CodeMirror.fromTextArea(document.getElementById("code"), { mode: "python", lineNumbers: true });
+        function runCode() {
+            let code = editor.getValue();
+            fetch("/run", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ code })
+            })
+            .then(res => res.json())
+            .then(data => document.getElementById("output").innerText = data.output)
+            .catch(err => console.error(err));
+        }
+        function installPackage() {
+            let package = prompt("Enter package name to install:");
+            if (package) {
+                fetch("/install", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ package })
+                })
+                .then(res => res.json())
+                .then(data => document.getElementById("output").innerHTML += "<br>" + data.output)
+                .catch(err => console.error(err));
+            }
+        }
+        function toggleInfo() {
+            let infoBox = document.getElementById("infoBox");
+            infoBox.style.display = infoBox.style.display === "none" ? "block" : "none";
+        }
+    </script>
+</body>
+</html>
 
-# Function to convert text to PDF
-def text_to_pdf():
-    text = text_input.get("1.0", tk.END).strip()
-    if not text:
-        messagebox.showerror("Error", "No text entered")
-        return
-    
-    output_filename = filedialog.asksaveasfilename(defaultextension=".pdf", filetypes=[("PDF Files", "*.pdf")])
-    if output_filename:
-        c = canvas.Canvas(output_filename)
-        c.drawString(100, 750, text)
-        c.save()
-        messagebox.showinfo("Success", f"Text saved as {output_filename}")
+"""
 
-# Function to extract text from a PDF
-def extract_text():
-    file = filedialog.askopenfilename(title="Select PDF", filetypes=[("PDF Files", "*.pdf")])
-    if not file:
-        return
-    
-    doc = fitz.open(file)
-    extracted_text = ""
-    
-    for page in doc:
-        extracted_text += page.get_text()
-    
-    text_input.delete("1.0", tk.END)
-    text_input.insert("1.0", extracted_text)
-    messagebox.showinfo("Success", "Text extracted from PDF")
+@app.route('/')
+def home():
+    return render_template_string(HTML_TEMPLATE)
 
-# Create GUI
-root = tk.Tk()
-root.title("PDF Toolkit - I Love PDF Clone")
-root.geometry("500x500")
+@app.route('/run', methods=['POST'])
+def run_python():
+    try:
+        code = request.json.get('code')
+        result = subprocess.run([sys.executable, '-c', code], capture_output=True, text=True, timeout=5)
+        return jsonify({"output": result.stdout + result.stderr})
+    except Exception as e:
+        return jsonify({"output": str(e)})
 
-# Buttons
-tk.Button(root, text="Merge PDFs", command=merge_pdfs, width=20).pack(pady=5)
-tk.Button(root, text="Split PDF", command=split_pdf, width=20).pack(pady=5)
+@app.route('/install', methods=['POST'])
+def install_package():
+    try:
+        package = request.json.get('package')
+        result = subprocess.run([sys.executable, '-m', 'pip', 'install', package], capture_output=True, text=True)
+        return jsonify({"output": result.stdout + result.stderr})
+    except Exception as e:
+        return jsonify({"output": str(e)})
 
-# Split PDF Page Range
-tk.Label(root, text="Start Page:").pack()
-entry_start = tk.Entry(root)
-entry_start.pack()
-tk.Label(root, text="End Page:").pack()
-entry_end = tk.Entry(root)
-entry_end.pack()
-
-tk.Button(root, text="Extract Text from PDF", command=extract_text, width=20).pack(pady=5)
-
-# Text to PDF
-text_input = tk.Text(root, height=5, width=40)
-text_input.pack(pady=10)
-tk.Button(root, text="Convert Text to PDF", command=text_to_pdf, width=20).pack(pady=5)
-
-# Run App
-root.mainloop()
+if __name__ == '__main__':
+    app.run(debug=True)
